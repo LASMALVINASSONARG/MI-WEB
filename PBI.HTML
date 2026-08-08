@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Simulador de Plazo Fijo</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f3f5f9;
+            color: #222;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .subtitulo {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+        }
+
+        .inputs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 22px;
+            border: none;
+            border-radius: 10px;
+            background: #2457d6;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1745b8;
+        }
+
+        .resumen {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+        }
+
+        .card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .verde {
+            color: #16833b;
+        }
+
+        .tabla-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f0f2f5;
+        }
+
+        .ganancia {
+            color: #16833b;
+            font-weight: bold;
+        }
+
+        .resultado {
+            font-weight: bold;
+        }
+
+        .info {
+            margin-top: 18px;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 750px) {
+
+            .inputs {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .resumen {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .inputs {
+                grid-template-columns: 1fr;
+            }
+
+            body {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Simulador de Plazo Fijo</h1>
+
+    <p class="subtitulo">
+        Calculá cuánto puede crecer tu dinero renovando el plazo fijo.
+    </p>
+
+
+    <!-- CONFIGURACIÓN -->
+
+    <div class="panel">
+
+        <div class="inputs">
+
+            <div>
+                <label>Capital inicial</label>
+
+                <input
+                    type="number"
+                    id="capital"
+                    value="100000"
+                    min="0"
+                    step="0.01"
+                >
+            </div>
+
+
+            <div>
+                <label>TNA (%)</label>
+
+                <input
+                    type="number"
+                    id="tna"
+                    value="30"
+                    min="0"
+                    step="0.01"
+                >
+            </div>
+
+
+            <div>
+                <label>Días</label>
+
+                <input
+                    type="number"
+                    id="dias"
+                    value="30"
+                    min="1"
+                >
+            </div>
+
+
+            <div>
+                <label>Renovaciones</label>
+
+                <input
+                    type="number"
+                    id="renovaciones"
+                    value="12"
+                    min="1"
+                >
+            </div>
+
+        </div>
+
+
+        <button onclick="simular()">
+            Simular plazo fijo
+        </button>
+
+
+        <div class="info">
+
+            <strong>Cómo se calcula:</strong>
+
+            La ganancia de cada período se calcula utilizando la
+            TNA y la cantidad de días seleccionada.
+
+            <br><br>
+
+            <strong>Fórmula:</strong>
+
+            Capital × (TNA / 100) × (días / 365)
+
+        </div>
+
+    </div>
+
+
+    <!-- RESUMEN -->
+
+    <div class="resumen">
+
+        <div class="card">
+
+            <h3>Capital inicial</h3>
+
+            <p id="capitalInicial">
+                $0
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Capital final</h3>
+
+            <p id="capitalFinal">
+                $0
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Ganancia total</h3>
+
+            <p
+                id="gananciaTotal"
+                class="verde"
+            >
+                $0
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- TABLA -->
+
+    <div class="panel">
+
+        <h2 style="margin-bottom: 20px;">
+            Evolución de las renovaciones
+        </h2>
+
+
+        <div class="tabla-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Renovación
+                        </th>
+
+                        <th>
+                            Capital inicial
+                        </th>
+
+                        <th>
+                            Días
+                        </th>
+
+                        <th>
+                            TNA
+                        </th>
+
+                        <th>
+                            Ganancia
+                        </th>
+
+                        <th>
+                            Capital final
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="tablaResultados">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function formatoDinero(numero) {
+
+    return new Intl.NumberFormat("es-AR", {
+
+        style: "currency",
+
+        currency: "ARS",
+
+        minimumFractionDigits: 2,
+
+        maximumFractionDigits: 2
+
+    }).format(numero);
+
+}
+
+
+function simular() {
+
+    // Obtener datos
+
+    let capital = parseFloat(
+        document.getElementById("capital").value
+    );
+
+    let tna = parseFloat(
+        document.getElementById("tna").value
+    );
+
+    let dias = parseInt(
+        document.getElementById("dias").value
+    );
+
+    let renovaciones = parseInt(
+        document.getElementById("renovaciones").value
+    );
+
+
+    // Comprobar datos
+
+    if (
+        isNaN(capital) ||
+        isNaN(tna) ||
+        isNaN(dias) ||
+        isNaN(renovaciones)
+    ) {
+
+        alert("Completá todos los campos.");
+
+        return;
+    }
+
+
+    if (
+        capital <= 0 ||
+        tna < 0 ||
+        dias <= 0 ||
+        renovaciones <= 0
+    ) {
+
+        alert("Ingresá valores válidos.");
+
+        return;
+    }
+
+
+    // Guardamos el capital original
+
+    let capitalInicial = capital;
+
+
+    // Seleccionamos la tabla
+
+    let tabla = document.getElementById(
+        "tablaResultados"
+    );
+
+
+    // Limpiamos resultados anteriores
+
+    tabla.innerHTML = "";
+
+
+    // Repetir por cada renovación
+
+    for (
+        let i = 1;
+        i <= renovaciones;
+        i++
+    ) {
+
+
+        // Calcular ganancia según TNA
+
+        let ganancia =
+            capital *
+            (tna / 100) *
+            (dias / 365);
+
+
+        // El resultado se reinvierte
+
+        let capitalFinal =
+            capital + ganancia;
+
+
+        // Crear fila
+
+        let fila =
+            document.createElement("tr");
+
+
+        fila.innerHTML = `
+
+            <td>
+                ${i}
+            </td>
+
+            <td>
+                ${formatoDinero(capital)}
+            </td>
+
+            <td>
+                ${dias} días
+            </td>
+
+            <td>
+                ${tna.toFixed(2)}%
+            </td>
+
+            <td class="ganancia">
+                +${formatoDinero(ganancia)}
+            </td>
+
+            <td class="resultado">
+                ${formatoDinero(capitalFinal)}
+            </td>
+
+        `;
+
+
+        tabla.appendChild(fila);
+
+
+        // IMPORTANTE:
+        // El capital final de esta renovación
+        // pasa a ser el capital inicial
+        // de la siguiente.
+
+        capital = capitalFinal;
+
+    }
+
+
+    // Mostrar resumen
+
+    document.getElementById(
+        "capitalInicial"
+    ).textContent =
+        formatoDinero(capitalInicial);
+
+
+    document.getElementById(
+        "capitalFinal"
+    ).textContent =
+        formatoDinero(capital);
+
+
+    document.getElementById(
+        "gananciaTotal"
+    ).textContent =
+        formatoDinero(
+            capital - capitalInicial
+        );
+
+}
+
+
+// Ejecutar automáticamente
+// cuando se abre la página
+
+simular();
+
+</script>
+
+</body>
+</html>
